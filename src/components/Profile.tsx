@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { getAuth, signOut, User } from 'firebase/auth';
-import { auth, initFirebase } from '../../lib/firebase'; // Ensure correct imports
+import { auth, initFirebase } from '../../lib/firebaseConfig';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -48,7 +48,7 @@ const Profile: React.FC = () => {
             className="rounded-full border-2 border-gray-300"
           />
           <div className="ml-6">
-            <h2 className="text-3xl font-bold">{user.displayName}</h2>
+            <h2 className="text-3xl font-bold">{user.displayName || 'No display name'}</h2>
             <p className="text-gray-700">{emailAddress}</p>
           </div>
         </div>
@@ -57,7 +57,7 @@ const Profile: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-gray-700 font-medium">Display Name</label>
-              <p className="border rounded-md p-2 bg-gray-100">{user.displayName}</p>
+              <p className="border rounded-md p-2 bg-gray-100">{user.displayName || 'No display name'}</p>
             </div>
             <div>
               <label className="block text-gray-700 font-medium">Email</label>

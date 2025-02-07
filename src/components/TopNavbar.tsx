@@ -18,7 +18,9 @@ const TopNav: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
+  const [categories, setCategories] = useState<{ _id: string; name: string }[]>(
+    []
+  );
   const [products, setProducts] = useState<Product[]>([]);
   const [user] = useAuthState(auth);
   const [isAdmin, setIsAdmin] = useState(false); // State to check if user is admin
@@ -42,14 +44,24 @@ const TopNav: React.FC = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
         setIsProfileOpen(false);
       }
-      if (searchRef.current && !searchRef.current.contains(event.target as Node) && !searchInputRef.current?.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node) &&
+        !searchInputRef.current?.contains(event.target as Node)
+      ) {
         setIsSearchOpen(false);
         setQuery("");
       }
-      if (mobileMenuButtonRef.current && !mobileMenuButtonRef.current.contains(event.target as Node)) {
+      if (
+        mobileMenuButtonRef.current &&
+        !mobileMenuButtonRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -75,13 +87,18 @@ const TopNav: React.FC = () => {
     }
   };
   const toggleProfile = () => setIsProfileOpen(!isProfileOpen);
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value);
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setQuery(e.target.value);
 
   const filteredProducts = products.filter(
-    (product) => product.title && product.title.toLowerCase().includes(query.toLowerCase())
+    (product) =>
+      product.title && product.title.toLowerCase().includes(query.toLowerCase())
   );
 
-  const cartItemCount = state.cart.reduce((total, item) => total + item.quantity, 0);
+  const cartItemCount = state.cart.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
   const handleSignOut = async () => {
     try {
@@ -93,25 +110,49 @@ const TopNav: React.FC = () => {
 
   const renderUserProfile = user ? (
     <div className="relative" ref={profileRef}>
-      <div onClick={toggleProfile} className="flex items-center cursor-pointer p-2 text-gray-700 hover:text-gray-900">
-        <Image src={user.photoURL || "/icons/default-profile.png"} alt="Profile" width={40} height={40} className="rounded-full" />
+      <div
+        onClick={toggleProfile}
+        className="flex items-center cursor-pointer p-2 text-gray-700 hover:text-gray-900"
+      >
+        <Image
+          src={user.photoURL || "/icons/default-profile.png"}
+          alt="Profile"
+          width={40}
+          height={40}
+          className="rounded-full"
+        />
         {isProfileOpen && (
           <div className="absolute right-0 mt-48 w-48 bg-white rounded-md shadow-lg z-50 p-2">
             <div className="flex items-center space-x-2 mb-2">
-              <Image src={user.photoURL || "/icons/default-profile.png"} alt="Profile" width={32} height={32} className="rounded-full" />
+              <Image
+                src={user.photoURL || "/icons/default-profile.png"}
+                alt="Profile"
+                width={32}
+                height={32}
+                className="rounded-full"
+              />
               <span className="font-medium">{user.displayName}</span>
             </div>
             <div className="border-t pt-2">
-              <Link href="/profile" className="flex items-center space-x-2 px-2 py-1 hover:bg-gray-100 rounded">
+              <Link
+                href="/profile"
+                className="flex items-center space-x-2 px-2 py-1 hover:bg-gray-100 rounded"
+              >
                 <User size={16} />
                 <span>Profile</span>
               </Link>
-              <button onClick={handleSignOut} className="flex items-center space-x-2 w-full text-left px-2 py-1 hover:bg-gray-100 rounded">
+              <button
+                onClick={handleSignOut}
+                className="flex items-center space-x-2 w-full text-left px-2 py-1 hover:bg-gray-100 rounded"
+              >
                 <LogOut size={16} />
                 <span>Sign Out</span>
               </button>
               {isAdmin && ( // Render admin link if user is admin
-                <Link href="/admin" className="flex items-center space-x-2 px-2 py-1 hover:bg-gray-100 rounded">
+                <Link
+                  href="/admin"
+                  className="flex items-center space-x-2 px-2 py-1 hover:bg-gray-100 rounded"
+                >
                   <span>Admin Dashboard</span>
                 </Link>
               )}
@@ -132,7 +173,10 @@ const TopNav: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <button onClick={toggleSearch} className="p-2 text-gray-700 hover:text-gray-900">
+              <button
+                onClick={toggleSearch}
+                className="p-2 text-gray-700 hover:text-gray-900"
+              >
                 <Search size={24} />
               </button>
             </div>
@@ -142,7 +186,10 @@ const TopNav: React.FC = () => {
               </Link>
             </div>
             <div className="flex items-center space-x-6">
-              <Link href="/cart" className="relative p-2 text-gray-700 hover:text-gray-900">
+              <Link
+                href="/cart"
+                className="relative p-2 text-gray-700 hover:text-gray-900"
+              >
                 <ShoppingCart size={24} />
                 {cartItemCount > 0 && (
                   <span className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">
@@ -151,13 +198,25 @@ const TopNav: React.FC = () => {
                 )}
               </Link>
               {user && (
-                <Link href="/tracking" className="p-2 text-gray-700 hover:text-gray-900">
+                <Link
+                  href="/tracking"
+                  className="p-2 text-gray-700 hover:text-gray-900"
+                >
                   <Package size={24} />
                 </Link>
               )}
               {renderUserProfile}
-              <button onClick={toggleMenu} className="md:hidden p-2 text-gray-700 hover:text-gray-900" ref={mobileMenuButtonRef}>
-                <Image src="/icons/menu.svg" alt="Menu" width={24} height={24} />
+              <button
+                onClick={toggleMenu}
+                className="md:hidden p-2 text-gray-700 hover:text-gray-900"
+                ref={mobileMenuButtonRef}
+              >
+                <Image
+                  src="/icons/menu.svg"
+                  alt="Menu"
+                  width={24}
+                  height={24}
+                />
               </button>
             </div>
           </div>
@@ -167,7 +226,11 @@ const TopNav: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center space-x-9 py-4">
             {categories.map((category) => (
-              <Link href={`/products?category=${category.name}`} key={category._id} className="text-gray-700 hover:text-gray-900">
+              <Link
+                href={`/products?category=${category.name}`}
+                key={category._id}
+                className="text-gray-700 hover:text-gray-900"
+              >
                 {category.name}
               </Link>
             ))}
@@ -178,7 +241,11 @@ const TopNav: React.FC = () => {
         <div className="md:hidden">
           <div className="pt-2 pb-3 space-y-1">
             {categories.map((category) => (
-              <Link href={`/products?category=${category.name}`} key={category._id} className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+              <Link
+                href={`/products?category=${category.name}`}
+                key={category._id}
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+              >
                 {category.name}
               </Link>
             ))}
@@ -186,23 +253,41 @@ const TopNav: React.FC = () => {
         </div>
       )}
       {isSearchOpen && (
-        <div className="bg-white border-b shadow-sm" ref={searchRef} onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            setIsSearchOpen(false);
-            setQuery("");
-          }
-        }}>
+        <div
+          className="bg-white border-b shadow-sm"
+          ref={searchRef}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsSearchOpen(false);
+              setQuery("");
+            }
+          }}
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
             <div className="flex items-center">
-              <input type="text" value={query} onChange={handleSearch} placeholder="Search products..." className="w-full p-2 border-none focus:outline-none focus:ring-2 focus:ring-blue-500" ref={searchInputRef} />
-              <button onClick={toggleSearch} className="ml-2 text-gray-700 hover:text-gray-900">
+              <input
+                type="text"
+                value={query}
+                onChange={handleSearch}
+                placeholder="Search products..."
+                className="w-full p-2 border-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                ref={searchInputRef}
+              />
+              <button
+                onClick={toggleSearch}
+                className="ml-2 text-gray-700 hover:text-gray-900"
+              >
                 <Search size={24} />
               </button>
             </div>
             {query && (
               <div className="mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow">
                 {filteredProducts.map((product) => (
-                  <Link href={`/products/${product.slug?.current ?? ""}`} key={product._id} className="block p-3 hover:bg-gray-50">
+                  <Link
+                    href={`/products/${product.slug?.current ?? ""}`}
+                    key={product._id}
+                    className="block p-3 hover:bg-gray-50"
+                  >
                     {product.title}
                   </Link>
                 ))}
