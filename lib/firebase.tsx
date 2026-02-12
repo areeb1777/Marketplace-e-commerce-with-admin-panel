@@ -1,8 +1,6 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { getAuth, signOut } from "firebase/auth";
-import { getStorage } from "firebase/storage";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,22 +15,4 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const analytics = isSupported().then((yes) => (yes ? getAnalytics(app) : null));
-export const db = getFirestore(app);
 export const auth = getAuth(app);
-export const storage = getStorage(app);
-
-// Function to get user role
-export const getUserRole = async (uid: string): Promise<string | null> => {
-  const userDoc = await getDoc(doc(db, "users", uid)); // Adjust the collection name as necessary
-  if (userDoc.exists()) {
-    return userDoc.data().role; // Assuming you have a 'role' field
-  }
-  return null; // Return null if user does not exist
-};
-
-// Initialize Firebase App (Export function for initialization)
-export const initFirebase = () => {
-  if (!getApps().length) {
-    initializeApp(firebaseConfig);
-  }
-};

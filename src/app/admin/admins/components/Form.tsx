@@ -4,10 +4,7 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 import { Button } from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { createNewAdmin } from "../../../../../lib/firestore/admins/write";
-import useSWR from "swr";
-import { fetcher } from "../../../../sanity/lib/utils/fetcher";
-
-const fetchAdminsQuery = `*[_type == "admin"]{_id, name, email}`;
+import { useAdmins } from "../../../../../lib/useAdmins";
 
 interface FormData {
   name: string;
@@ -16,7 +13,7 @@ interface FormData {
 }
 
 export default function Form() {
-  const { mutate } = useSWR(fetchAdminsQuery, fetcher);
+  const { mutate } = useAdmins();
   const [data, setData] = useState<FormData>({ name: "", email: "" });
   const [isLoading, setIsLoading] = useState(false);
 

@@ -4,9 +4,8 @@ import React, { ReactNode, useEffect, useState, useRef } from "react";
 import SideBar from "./SideBar";
 import Header from "./Header";
 import { usePathname } from "next/navigation";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { useAuth } from "../../../../contexts/AuthContext";
 import { useAdmins } from "../../../../lib/useAdmins";
-import { useRouter } from "next/navigation";
 import AccessDenied from "./AccessDenied";
 
 interface LayoutProps {
@@ -17,8 +16,7 @@ export default function AdminLayout({ children }: LayoutProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const router = useRouter();
+  const { user } = useAuth();
   const { data: admins, error, isLoading } = useAdmins();
 
   const toggleSideBar = () => {
@@ -44,25 +42,14 @@ export default function AdminLayout({ children }: LayoutProps) {
     };
   }, []);
 
-  useEffect(() => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-      } else {
-        router.push("/api/auth/signin");
-      }
-    });
-  }, [router]);
-
   if (!user || isLoading) return <div>Loading...</div>;
+
+  if (error) return <div>Failed to load admins: {error}</div>;
 
   const isAdmin = admins?.some((admin) => admin.email === user.email);
   if (!isAdmin) {
     return <AccessDenied />;
   }
-
-  if (error) return <div>Failed to load admins: {error}</div>;
 
   return (
     <main className="relative flex">

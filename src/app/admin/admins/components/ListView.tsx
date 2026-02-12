@@ -1,23 +1,17 @@
 "use client";
 
-import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import { Button } from "@nextui-org/react";
 import { Edit2, Trash2 } from "lucide-react";
-import { db } from "../../../../../lib/firebase";
-import {
-  collection,
-  getDocs,
-  doc,
-  deleteDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { useAdmins } from "../../../../../lib/useAdmins";
+import { updateAdmin, deleteAdmin } from "../../../../../lib/firestore/admins/write";
+import { useAuth } from "../../../../../contexts/AuthContext";
 import { getGravatarUrl } from "../../../../../lib/utils/gravator";
 
 interface Admin {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   image?: string | null;
@@ -28,38 +22,11 @@ interface ListViewProps {
 }
 
 const ListView: React.FC<ListViewProps> = ({ onEditAdmin }) => {
-  const [admins, setAdmins] = useState<Admin[]>([]);
+  const { data: admins, error, isLoading, mutate } = useAdmins();
   const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null);
   const [updatedName, setUpdatedName] = useState<string>("");
   const [updatedEmail, setUpdatedEmail] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-
-  const fetchAdmins = async () => {
-    setIsLoading(true);
-    try {
-      const querySnapshot = await getDocs(collection(db, "admins"));
-      const adminsData: Admin[] = [];
-      querySnapshot.forEach((doc) => {
-        const adminData = doc.data();
-        adminsData.push({
-          id: doc.id,
-          ...adminData,
-          image: adminData.image || null,
-        } as Admin);
-      });
-      setAdmins(adminsData);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(String(err));
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { user } = useAuth();
 
   const handleDelete = async (id: string) => {
     const confirmDelete = window.confirm(
@@ -67,9 +34,9 @@ const ListView: React.FC<ListViewProps> = ({ onEditAdmin }) => {
     );
     if (confirmDelete) {
       try {
-        await deleteDoc(doc(db, "admins", id));
+        await deleteAdmin(id);
         toast.success("Admin deleted successfully!");
-        fetchAdmins();
+        mutate();
       } catch (err: unknown) {
         if (err instanceof Error) {
           toast.error(`Failed to delete admin: ${err.message}`);
@@ -98,12 +65,12 @@ const ListView: React.FC<ListViewProps> = ({ onEditAdmin }) => {
     if (!editingAdmin) return;
 
     try {
-      await updateDoc(doc(db, "admins", editingAdmin.id), {
+      await updateAdmin(editingAdmin._id, {
         name: updatedName,
         email: updatedEmail,
       });
       toast.success("Admin updated successfully!");
-      fetchAdmins();
+      mutate();
       handleCancelEdit();
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -113,18 +80,6 @@ const ListView: React.FC<ListViewProps> = ({ onEditAdmin }) => {
       }
     }
   };
-
-  useEffect(() => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-      } else {
-        setUser(null);
-      }
-    });
-    fetchAdmins();
-  }, []);
 
   if (error) return <div>Failed to load admins: {error}</div>;
   if (isLoading) return <div>Loading...</div>;
@@ -175,12 +130,20 @@ const ListView: React.FC<ListViewProps> = ({ onEditAdmin }) => {
           </thead>
           <tbody>
             {admins.map((admin, index) => (
-              <tr key={admin.id} className="text-center bg-white">
+              <tr key={admin._id} className="text-center bg-white">
                 <td className="border px-4 py-2">{index + 1}</td>
                 <td className="border px-4 py-2">
                   {user && user.email === admin.email ? (
                     <Image
                       src={user.photoURL || "/default-profile.png"}
+                      alt={admin.name}
+                      width={50}
+                      height={50}
+                      className="rounded-full"
+                    />
+                  ) : admin.image ? (
+                    <Image
+                      src={admin.image}
                       alt={admin.name}
                       width={50}
                       height={50}
@@ -207,7 +170,7 @@ const ListView: React.FC<ListViewProps> = ({ onEditAdmin }) => {
                       <Edit2 size={16} />
                     </button>
                     <button
-                      onClick={() => handleDelete(admin.id)}
+                      onClick={() => handleDelete(admin._id)}
                       className="bg-red-500 text-white px-2 py-1 rounded flex items-center justify-center ml-2"
                     >
                       <Trash2 size={16} />

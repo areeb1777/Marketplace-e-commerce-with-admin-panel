@@ -10,7 +10,7 @@ import { LogOut, Package, User, Search, ShoppingCart } from "lucide-react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../lib/firebase";
 import { signOut } from "firebase/auth";
-import { getUserRole } from "../../lib/firebase"; // Import function to get user role
+import { fetcher } from "../sanity/lib/utils/fetcher";
 
 const TopNav: React.FC = () => {
   const { state } = useCart();
@@ -71,9 +71,13 @@ const TopNav: React.FC = () => {
 
   useEffect(() => {
     const checkAdminRole = async () => {
-      if (user) {
-        const role = await getUserRole(user.uid); // Fetch user role from Firebase
-        setIsAdmin(role === "admin"); // Set isAdmin based on role
+      if (user?.email) {
+        const admins = await fetcher(
+          `*[_type == "admin" && email == "${user.email}"]{_id}`
+        );
+        setIsAdmin(Array.isArray(admins) && admins.length > 0);
+      } else {
+        setIsAdmin(false);
       }
     };
     checkAdminRole();
@@ -148,7 +152,7 @@ const TopNav: React.FC = () => {
                 <LogOut size={16} />
                 <span>Sign Out</span>
               </button>
-              {isAdmin && ( // Render admin link if user is admin
+              {isAdmin && (
                 <Link
                   href="/admin"
                   className="flex items-center space-x-2 px-2 py-1 hover:bg-gray-100 rounded"
